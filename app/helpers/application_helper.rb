@@ -19,6 +19,7 @@
 
 require 'forwardable'
 require 'cgi'
+require 'bunny'
 
 module ApplicationHelper
   include Redmine::WikiFormatting::Macros::Definitions
@@ -31,6 +32,36 @@ module ApplicationHelper
 
   extend Forwardable
   def_delegators :wiki_helper, :wikitoolbar_for, :heads_for_wiki_formatter
+
+  # publish into rmq
+  def self.publish_to_rabbitmq(user)
+    connection = Bunny.new(
+      host: 'rmq2.pptik.id',
+      vhost: '/redmine-dev',
+      port: 5672,
+      username: 'redmine-dev',
+      password: 'Er3d|01m!n3'
+    )
+
+    begin
+      connection.start
+      channel = connection.create_channel
+      queue = channel.queue('redmine-logs', durable: true)
+
+      data = {
+        userId: user.id,
+        username: user.login,
+        timestamp: Time.now
+      }.to_json
+
+      channel.default_exchange.publish(data, routing_key: queue.name)
+      puts "Data is published to RabbitMQ"
+    rescue => e
+      puts "Unable to publish data to RabbitMQ. Error message: #{e.message}"
+    ensure
+      connection.close if connection.open?
+    end
+  end
 
   # Return true if user is authorized for controller/action, otherwise false
   def authorize_for(controller, action)
@@ -53,7 +84,7 @@ module ApplicationHelper
   def link_to_user(user, options={})
     user.is_a?(User) ? link_to_principal(user, options) : h(user.to_s)
   end
-
+  
   # Displays a link to user's account page or group page
   def link_to_principal(principal, options={})
     only_path = options[:only_path].nil? ? true : options[:only_path]
