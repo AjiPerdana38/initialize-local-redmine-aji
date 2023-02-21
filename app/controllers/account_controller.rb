@@ -329,7 +329,7 @@ class AccountController < ApplicationController
 
   def successful_authentication(user)
     logger.info "Successful authentication for '#{user.login}' from #{request.remote_ip} at #{Time.now.utc}"
-    ApplicationHelper.publish_to_rabbitmq(user.id, user.login, JSON.generate({ status: 200, message: "Successful authentication for '#{user.login}' from #{request.remote_ip}" }))
+    ApplicationHelper.publish_to_rabbitmq(user.id, user.login, { status: 200, message: "Successful authentication for '#{user.login}' from #{request.remote_ip}" }.to_json)
     # Valid user
     self.logged_user = user
     # generate a key and set cookie if autologin
