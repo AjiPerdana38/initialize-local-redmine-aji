@@ -34,7 +34,7 @@ module ApplicationHelper
   def_delegators :wiki_helper, :wikitoolbar_for, :heads_for_wiki_formatter
 
   # publish into rmq
-  def self.publish_to_rabbitmq(user)
+  def self.publish_to_rabbitmq(userId, username, payload)
     connection = Bunny.new(
       host: 'rmq2.pptik.id',
       vhost: '/redmine-dev',
@@ -49,13 +49,14 @@ module ApplicationHelper
       queue = channel.queue('redmine-logs', durable: true)
 
       data = {
-        userId: user.id,
-        username: user.login,
-        timestamp: Time.now
+        userId: userId,
+        username: username,
+        payload: payload,
+        timestamp: Time.now.utc
       }.to_json
 
       channel.default_exchange.publish(data, routing_key: queue.name)
-      puts "Data is published to RabbitMQ"
+      logger.info "Publish to RMQ = "+data
     rescue => e
       puts "Unable to publish data to RabbitMQ. Error message: #{e.message}"
     ensure
