@@ -329,8 +329,9 @@ class AccountController < ApplicationController
 
   def successful_authentication(user)
     phone_number = user.custom_value_for(CustomField.where(name: 'Phone Number').first)
+    phone_number_value = phone_number ? phone_number.value : ''
     logger.info "Successful authentication for '#{user.login}' from #{request.remote_ip} at #{Time.now.utc}"
-    ApplicationHelper.publish_to_rabbitmq(user.id, user.login, phone_number.value, { status: 200, message: "Successful authentication for '#{user.login}' from #{request.remote_ip}" }.to_json)
+    ApplicationHelper.publish_to_rabbitmq(user.id, user.login, phone_number_value, { status: 200, message: "Successful authentication for '#{user.login}' from #{request.remote_ip}" }.to_json)
     # Valid user
     self.logged_user = user
     # generate a key and set cookie if autologin

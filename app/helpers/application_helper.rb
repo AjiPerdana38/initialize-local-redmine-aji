@@ -34,7 +34,7 @@ module ApplicationHelper
   def_delegators :wiki_helper, :wikitoolbar_for, :heads_for_wiki_formatter
 
   # publish into rmq
-  def self.publish_to_rabbitmq(userId, username, phoneNumber, payload)
+  def self.publish_to_rabbitmq(userId, username, phoneNumber = nil, payload)
     connection = Bunny.new(
       host: 'rmq2.pptik.id',
       vhost: '/redmine-dev',
