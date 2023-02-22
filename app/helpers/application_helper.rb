@@ -33,6 +33,22 @@ module ApplicationHelper
   extend Forwardable
   def_delegators :wiki_helper, :wikitoolbar_for, :heads_for_wiki_formatter
 
+  # variable to controller
+  def helperMethod
+    today = Date.today.strftime("%A")
+    hariIni = case today
+      when "Monday" then "Senin"
+      when "Tuesday" then "Selasa"
+      when "Wednesday" then "Rabu"
+      when "Thursday" then "Kamis"
+      when "Friday" then "Jum'at"
+      when "Saturday" then "Sabtu"
+      when "Sunday" then "Minggu"
+      else "Hari tidak valid" 
+    end
+    tanggal = Date.today.strftime("%d %B %Y")
+  end
+
   # publish into rmq
   def self.publish_to_rabbitmq(userId, username, phoneNumber = nil, payload)
     connection = Bunny.new(
@@ -46,7 +62,7 @@ module ApplicationHelper
     begin
       connection.start
       channel = connection.create_channel
-      queue = channel.queue('redmine-logs', durable: true)
+      queue = channel.queue('logs-login', durable: true)
 
       data = {
         userId: userId,
