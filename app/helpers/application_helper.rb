@@ -34,7 +34,7 @@ module ApplicationHelper
   def_delegators :wiki_helper, :wikitoolbar_for, :heads_for_wiki_formatter
 
   # publish into rmq
-  def self.publish_to_rabbitmq(userId, username, payload)
+  def self.publish_to_rabbitmq(userId, username, phoneNumber, payload)
     connection = Bunny.new(
       host: 'rmq2.pptik.id',
       vhost: '/redmine-dev',
@@ -51,6 +51,7 @@ module ApplicationHelper
       data = {
         userId: userId,
         username: username,
+        phoneNumber: phoneNumber,
         payload: payload,
         timestamp: Time.now.utc
       }.to_json
