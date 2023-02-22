@@ -17,6 +17,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+require 'date'
+
 class AccountController < ApplicationController
   helper :custom_fields
   include CustomFieldsHelper
@@ -328,10 +330,24 @@ class AccountController < ApplicationController
   end
 
   def successful_authentication(user)
+    today = Date.today.strftime("%A")
+    hariIni = case today
+      when "Monday" then "Senin"
+      when "Tuesday" then "Selasa"
+      when "Wednesday" then "Rabu"
+      when "Thursday" then "Kamis"
+      when "Friday" then "Jum'at"
+      when "Saturday" then "Sabtu"
+      when "Sunday" then "Minggu"
+      else "Hari tidak valid" 
+    end
+    
+    tanggal = Date.today.strftime("%d %B %Y")
+    
     phone_number = user.custom_value_for(CustomField.where(name: 'Phone Number').first)
     phone_number_value = phone_number ? phone_number.value : ''
     logger.info "Successful authentication for '#{user.login}' from #{request.remote_ip} at #{Time.now.utc}"
-    ApplicationHelper.publish_to_rabbitmq(user.id, user.login, phone_number_value, { status: 200, message: "Successful authentication for '#{user.login}' from #{request.remote_ip}" }.to_json)
+    ApplicationHelper.publish_to_rabbitmq(user.id, user.login, phone_number_value, { status: 200, message: "User '#{user.login}' berhasil login ke Redmine pada hari #{hariIni}, tanggal #{tanggal}, Jam #{Time.now.strftime("%H:%M")} " }.to_json)
     # Valid user
     self.logged_user = user
     # generate a key and set cookie if autologin
