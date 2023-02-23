@@ -17,6 +17,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+require 'date'
+
 class MembersController < ApplicationController
   model_object Member
   before_action :find_model_object, :except => [:index, :new, :create, :autocomplete]
@@ -26,6 +28,8 @@ class MembersController < ApplicationController
   accept_api_auth :index, :show, :create, :update, :destroy
 
   require_sudo_mode :create, :update, :destroy
+
+  include ApplicationHelper
 
   def index
     scope = @project.memberships
@@ -60,10 +64,34 @@ class MembersController < ApplicationController
       user_ids.each do |user_id|
         member = Member.new(:project => @project, :user_id => user_id)
         member.set_editable_role_ids(params[:membership][:role_ids])
+
         members << member
       end
       @project.members << members
     end
+
+    latest_member = members.last
+    data = {
+      member_id: latest_member.user.id,
+      member_name: latest_member.user.name,
+      member_phone: latest_member.user.custom_value_for(CustomField.find_by(name: 'Phone Number').id).value,
+      project_name: latest_member.project.name,
+      sender_name: User.current.name
+    }
+
+    member_id = data[:member_id]
+    member_name = data[:member_name]
+    member_phone_number = data[:member_phone]
+    sender_name = data[:sender_name]
+    project_name = data[:project_name]
+
+    hariIni = helper_method
+
+    ApplicationHelper.log_project_publish_to_rabbitmq(member_id, member_name, member_phone_number, { status: 200, message: "#{sender_name} menambahkan #{member_name} pada project #{project_name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
+
+    # hariIni = helper_method
+
+    # ApplicationHelper.log_project_publish_to_rabbitmq(User.current.id, members.name, '085695951121', { status: 200, message: "#{User.current.name} membuat project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
 
     respond_to do |format|
       format.html {redirect_to_settings_in_projects}
