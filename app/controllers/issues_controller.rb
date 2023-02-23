@@ -152,6 +152,24 @@ class IssuesController < ApplicationController
     @issue.save_attachments(params[:attachments] || (params[:issue] && params[:issue][:uploads]))
     if @issue.save
       call_hook(:controller_issues_new_after_save, {:params => params, :issue => @issue})
+      
+      # Get issue data
+      issue_name = @issue.subject
+      issue_id = @issue.id
+      project_name = @issue.project.name
+      created_by = @issue.author.name
+      deadline = @issue.due_date.strftime('%d-%m-%y %H:%M')
+      url = issue_url(@issue)
+
+      # Get assigned member data
+      assigned_to = @issue.assigned_to.name
+      assigned_to_phone_number = @issue.assigned_to.custom_value_for(CustomField.where(name: 'Phone Number').first)
+      assigned_to_phone_number_value = assigned_to_phone_number ? assigned_to_phone_number.value : ''
+      
+      hariIni = helper_method
+
+      ApplicationHelper.log_issues_publish_to_rabbitmq(issue_id, issue_name, assigned_to, assigned_to_phone_number_value, {status: 200, message: "#{assigned_to} mendapatkan issue assignment: #{issue_name} dari #{created_by} pada project #{project_name} pada #{hariIni} dengan deadline issue pada tanggal #{deadline}, Akses detail issue di: #{url}"}.to_json)
+      
       respond_to do |format|
         format.html do
           render_attachment_warning_if_needed(@issue)

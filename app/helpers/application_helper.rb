@@ -112,7 +112,7 @@ module ApplicationHelper
     end
   end
 
-  def self.log_issues_publish_to_rabbitmq(issuesId, username, phoneNumber = nil, payload)
+  def self.log_issues_publish_to_rabbitmq(issuesId, issuesName, username, phoneNumber = nil, payload)
     connection = Bunny.new(
       host: 'rmq2.pptik.id',
       vhost: '/redmine-dev',
@@ -124,10 +124,11 @@ module ApplicationHelper
     begin
       connection.start
       channel = connection.create_channel
-      queue = channel.queue('logs-project', durable: true)
+      queue = channel.queue('logs-issues', durable: true)
 
       data = {
         issuesId: issuesId,
+        issuesName: issuesName,
         username: username,
         phoneNumber: phoneNumber,
         payload: payload,
