@@ -137,7 +137,7 @@ class ProjectsController < ApplicationController
       phone_number = User.current.custom_value_for(CustomField.where(name: 'Phone Number').first)
       phone_number_value = phone_number ? phone_number.value : ''
 
-      ApplicationHelper.log_project_publish_to_rabbitmq(User.current.id, User.current.name, phone_number_value, { status: 200, message: "#{User.current.name} membuat project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
+      ApplicationHelper.log_project_publish_to_rabbitmq(@project.id, @project.name, User.current.name, phone_number_value, { status: 200, message: "#{User.current.name} membuat project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
     else
       respond_to do |format|
         format.html {render :action => 'new'}
@@ -204,7 +204,7 @@ class ProjectsController < ApplicationController
         phone_number = User.current.custom_value_for(CustomField.where(name: 'Phone Number').first)
         phone_number_value = phone_number ? phone_number.value : ''
 
-        ApplicationHelper.log_project_publish_to_rabbitmq(User.current.id, User.current.name, phone_number_value, { status: 200, message: "#{User.current.name} melihat project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
+        ApplicationHelper.log_project_publish_to_rabbitmq(@project.id, @project.name, User.current.name, phone_number_value, { status: 200, message: "#{User.current.name} melihat project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
       end
       format.api
     end
@@ -239,7 +239,7 @@ class ProjectsController < ApplicationController
       phone_number = User.current.custom_value_for(CustomField.where(name: 'Phone Number').first)
       phone_number_value = phone_number ? phone_number.value : ''
 
-      ApplicationHelper.log_project_publish_to_rabbitmq(User.current.id, User.current.name, phone_number_value, { status: 200, message: "#{User.current.name} mengupdate project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
+      ApplicationHelper.log_project_publish_to_rabbitmq(@project.id, @project.name, User.current.name, phone_number_value, { status: 200, message: "#{User.current.name} mengupdate project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
     else
       respond_to do |format|
         format.html do
@@ -272,7 +272,7 @@ class ProjectsController < ApplicationController
     phone_number = User.current.custom_value_for(CustomField.where(name: 'Phone Number').first)
     phone_number_value = phone_number ? phone_number.value : ''
 
-    ApplicationHelper.log_project_publish_to_rabbitmq(User.current.id, User.current.name, phone_number_value, { status: 200, message: "#{User.current.name} mengarsipkan project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
+    ApplicationHelper.log_project_publish_to_rabbitmq(@project.id, @project.name, User.current.name, phone_number_value, { status: 200, message: "#{User.current.name} mengarsipkan project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
   end
 
   def unarchive
@@ -287,7 +287,7 @@ class ProjectsController < ApplicationController
     phone_number = User.current.custom_value_for(CustomField.where(name: 'Phone Number').first)
     phone_number_value = phone_number ? phone_number.value : ''
 
-    ApplicationHelper.log_project_publish_to_rabbitmq(User.current.id, User.current.name, phone_number_value, { status: 200, message: "#{User.current.name} membatalkan arsip project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
+    ApplicationHelper.log_project_publish_to_rabbitmq(@project.id, @project.name, User.current.name, phone_number_value, { status: 200, message: "#{User.current.name} membatalkan arsip project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
   end
 
   def bookmark
@@ -305,7 +305,7 @@ class ProjectsController < ApplicationController
     phone_number = User.current.custom_value_for(CustomField.where(name: 'Phone Number').first)
     phone_number_value = phone_number ? phone_number.value : ''
 
-    ApplicationHelper.log_project_publish_to_rabbitmq(User.current.id, User.current.name, phone_number_value, { status: 200, message: "#{User.current.name} bookmark project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
+    ApplicationHelper.log_project_publish_to_rabbitmq(@project.name, @project.name, User.current.name, phone_number_value, { status: 200, message: "#{User.current.name} bookmark project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
   end
 
   def close
@@ -318,7 +318,7 @@ class ProjectsController < ApplicationController
     phone_number = User.current.custom_value_for(CustomField.where(name: 'Phone Number').first)
     phone_number_value = phone_number ? phone_number.value : ''
 
-    ApplicationHelper.log_project_publish_to_rabbitmq(User.current.id, User.current.name, phone_number_value, { status: 200, message: "#{User.current.name} menutup project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
+    ApplicationHelper.log_project_publish_to_rabbitmq(@project.id, @project.name, User.current.name, phone_number_value, { status: 200, message: "#{User.current.name} menutup project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
   end
 
   def reopen
@@ -331,7 +331,7 @@ class ProjectsController < ApplicationController
     phone_number = User.current.custom_value_for(CustomField.where(name: 'Phone Number').first)
     phone_number_value = phone_number ? phone_number.value : ''
 
-    ApplicationHelper.log_project_publish_to_rabbitmq(User.current.id, User.current.name, phone_number_value, { status: 200, message: "#{User.current.name} membuka kembali project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
+    ApplicationHelper.log_project_publish_to_rabbitmq(@project.id, @project.name, User.current.name, phone_number_value, { status: 200, message: "#{User.current.name} membuka kembali project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
   end
 
   # Delete @project
@@ -356,7 +356,7 @@ class ProjectsController < ApplicationController
       phone_number = User.current.custom_value_for(CustomField.where(name: 'Phone Number').first)
       phone_number_value = phone_number ? phone_number.value : ''
 
-      ApplicationHelper.log_project_publish_to_rabbitmq(User.current.id, User.current.name, phone_number_value, { status: 200, message: "#{User.current.name} menghapus project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
+      ApplicationHelper.log_project_publish_to_rabbitmq(@project.id, @project.name, User.current.name, phone_number_value, { status: 200, message: "#{User.current.name} menghapus project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
     end
     # hide project in layout
     @project = nil

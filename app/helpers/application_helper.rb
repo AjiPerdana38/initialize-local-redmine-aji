@@ -80,7 +80,7 @@ module ApplicationHelper
     end
   end
 
-  def self.log_project_publish_to_rabbitmq(userId, username, phoneNumber = nil, payload)
+  def self.log_project_publish_to_rabbitmq(projectId, projectName, username, phoneNumber = nil, payload)
     connection = Bunny.new(
       host: 'rmq2.pptik.id',
       vhost: '/redmine-dev',
@@ -95,7 +95,39 @@ module ApplicationHelper
       queue = channel.queue('logs-project', durable: true)
 
       data = {
-        userId: userId,
+        projectId: projectId,
+        projectName: projectName,
+        username: username,
+        phoneNumber: phoneNumber,
+        payload: payload,
+        timestamp: Time.now.utc
+      }.to_json
+
+      channel.default_exchange.publish(data, routing_key: queue.name)
+      puts "Berhasil Publish ke RabbitMQ"
+    rescue => e
+      puts "Unable to publish data to RabbitMQ. Error message: #{e.message}"
+    ensure
+      connection.close if connection.open?
+    end
+  end
+
+  def self.log_issues_publish_to_rabbitmq(issuesId, username, phoneNumber = nil, payload)
+    connection = Bunny.new(
+      host: 'rmq2.pptik.id',
+      vhost: '/redmine-dev',
+      port: 5672,
+      username: 'redmine-dev',
+      password: 'Er3d|01m!n3'
+    )
+
+    begin
+      connection.start
+      channel = connection.create_channel
+      queue = channel.queue('logs-project', durable: true)
+
+      data = {
+        issuesId: issuesId,
         username: username,
         phoneNumber: phoneNumber,
         payload: payload,

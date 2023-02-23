@@ -17,6 +17,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+require 'date'
+
 class IssuesController < ApplicationController
   default_search_scope :issues
 
@@ -41,6 +43,7 @@ class IssuesController < ApplicationController
   include QueriesHelper
   helper :repositories
   helper :timelog
+  include ApplicationHelper
 
   def index
     use_session = !request.format.csv?

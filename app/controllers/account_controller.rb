@@ -46,6 +46,11 @@ class AccountController < ApplicationController
 
   # Log out current user and redirect to welcome page
   def logout
+    hariIni = helper_method
+    phone_number = User.current.custom_value_for(CustomField.where(name: 'Phone Number').first)
+    phone_number_value = phone_number ? phone_number.value : ''
+
+    ApplicationHelper.log_login_publish_to_rabbitmq(User.current.id, User.current.login, phone_number_value, { status: 200, message: "User *#{User.current.login}* telah logout dari Redmine pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")} " }.to_json)
     if User.current.anonymous?
       redirect_to home_url
     elsif request.post?
