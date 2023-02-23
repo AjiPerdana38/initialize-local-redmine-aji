@@ -56,6 +56,49 @@ class MembersController < ApplicationController
     @member = Member.new
   end
 
+  def send_new_member_to_rabbitmq(members)
+    if members.size == 1
+      latest_member = members.last
+      data = {
+        member_id: latest_member.user.id,
+        member_name: latest_member.user.name,
+        member_phone: latest_member.user.custom_value_for(CustomField.find_by(name: 'Phone Number').id).value,
+        project_name: latest_member.project.name,
+        sender_name: User.current.name
+      }
+
+      member_id = data[:member_id]
+      member_name = data[:member_name]
+      member_phone = data[:member_phone]
+      sender_name = data[:sender_name]
+      project_name = data[:project_name]
+
+      hariIni = helper_method
+
+      ApplicationHelper.log_project_publish_to_rabbitmq(member_id, member_name, member_phone, { status: 200, message: "#{sender_name} menambahkan #{member_name} ke project #{project_name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
+    else
+      members.each do |member|
+        data = {
+          member_id: member.user.id,
+          member_name: member.user.name,
+          member_phone: member.user.custom_value_for(CustomField.find_by(name: 'Phone Number').id).value,
+          project_name: member.project.name,
+          sender_name: User.current.name
+        }
+
+        member_id = data[:member_id]
+        member_name = data[:member_name]
+        member_phone = data[:member_phone]
+        sender_name = data[:sender_name]
+        project_name = data[:project_name]
+
+        hariIni = helper_method
+
+        ApplicationHelper.log_project_publish_to_rabbitmq(member_id, member_name, member_phone, { status: 200, message: "#{sender_name} menambahkan #{member_name} ke project #{project_name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
+      end
+    end
+  end
+
   def create
     members = []
     if params[:membership]
@@ -68,30 +111,9 @@ class MembersController < ApplicationController
         members << member
       end
       @project.members << members
+
+      send_new_member_to_rabbitmq(members)
     end
-
-    latest_member = members.last
-    data = {
-      member_id: latest_member.user.id,
-      member_name: latest_member.user.name,
-      member_phone: latest_member.user.custom_value_for(CustomField.find_by(name: 'Phone Number').id).value,
-      project_name: latest_member.project.name,
-      sender_name: User.current.name
-    }
-
-    member_id = data[:member_id]
-    member_name = data[:member_name]
-    member_phone_number = data[:member_phone]
-    sender_name = data[:sender_name]
-    project_name = data[:project_name]
-
-    hariIni = helper_method
-
-    ApplicationHelper.log_project_publish_to_rabbitmq(member_id, member_name, member_phone_number, { status: 200, message: "#{sender_name} menambahkan #{member_name} pada project #{project_name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
-
-    # hariIni = helper_method
-
-    # ApplicationHelper.log_project_publish_to_rabbitmq(User.current.id, members.name, '085695951121', { status: 200, message: "#{User.current.name} membuat project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
 
     respond_to do |format|
       format.html {redirect_to_settings_in_projects}
@@ -117,8 +139,23 @@ class MembersController < ApplicationController
   def update
     if params[:membership]
       @member.set_editable_role_ids(params[:membership][:role_ids])
+      role_names = @member.roles.map(&:name).join(", ")
     end
     saved = @member.save
+    if saved
+      member_id = @member.user.id
+      member_name = @member.user.name
+      member_phone = @member.user.custom_value_for(CustomField.find_by(name: 'Phone Number').id).value
+      sender_name = User.current.name
+      role_ids = Array.wrap(params[:membership][:role_ids])
+      role_name = role_names
+
+      hariIni = helper_method
+
+      puts "#{sender_name} merubah #{member_name} menjadi role #{role_name} di project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}"
+
+      ApplicationHelper.log_project_publish_to_rabbitmq(member_id, member_name, member_phone, { status: 200, message: "#{sender_name} merubah #{member_name} menjadi role #{role_name} di project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
+    end
     respond_to do |format|
       format.html {redirect_to_settings_in_projects}
       format.js
@@ -133,9 +170,19 @@ class MembersController < ApplicationController
   end
 
   def destroy
+    member = @project.members.find(params[:id])
+    member_id = member.user.id
+    member_name = member.user.name
+    member_phone = member.user.custom_value_for(CustomField.find_by(name: 'Phone Number').id).value
+    sender_name = User.current.name
+    hariIni = helper_method
+
+    ApplicationHelper.log_project_publish_to_rabbitmq(member_id, member_name, member_phone, { status: 200, message: "#{sender_name} telah menghapus #{member_name} dari project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
+
     if @member.deletable?
       @member.destroy
     end
+    
     respond_to do |format|
       format.html {redirect_to_settings_in_projects}
       format.js

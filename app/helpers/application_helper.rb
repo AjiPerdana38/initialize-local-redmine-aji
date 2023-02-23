@@ -103,7 +103,7 @@ module ApplicationHelper
       }.to_json
 
       channel.default_exchange.publish(data, routing_key: queue.name)
-      logger.info "Publish to RMQ = "+data
+      puts "Berhasil Publish ke RabbitMQ"
     rescue => e
       puts "Unable to publish data to RabbitMQ. Error message: #{e.message}"
     ensure
