@@ -34,7 +34,7 @@ module ApplicationHelper
   def_delegators :wiki_helper, :wikitoolbar_for, :heads_for_wiki_formatter
 
   # variable to controller
-  def helperMethod
+  def helper_method
     today = Date.today.strftime("%A")
     hariIni = case today
       when "Monday" then "Senin"
@@ -46,11 +46,10 @@ module ApplicationHelper
       when "Sunday" then "Minggu"
       else "Hari tidak valid" 
     end
-    tanggal = Date.today.strftime("%d %B %Y")
   end
 
   # publish into rmq
-  def self.publish_to_rabbitmq(userId, username, phoneNumber = nil, payload)
+  def self.log_login_publish_to_rabbitmq(userId, username, phoneNumber = nil, payload)
     connection = Bunny.new(
       host: 'rmq2.pptik.id',
       vhost: '/redmine-dev',
@@ -63,6 +62,37 @@ module ApplicationHelper
       connection.start
       channel = connection.create_channel
       queue = channel.queue('logs-login', durable: true)
+
+      data = {
+        userId: userId,
+        username: username,
+        phoneNumber: phoneNumber,
+        payload: payload,
+        timestamp: Time.now.utc
+      }.to_json
+
+      channel.default_exchange.publish(data, routing_key: queue.name)
+      logger.info "Publish to RMQ = "+data
+    rescue => e
+      puts "Unable to publish data to RabbitMQ. Error message: #{e.message}"
+    ensure
+      connection.close if connection.open?
+    end
+  end
+
+  def self.log_project_publish_to_rabbitmq(userId, username, phoneNumber = nil, payload)
+    connection = Bunny.new(
+      host: 'rmq2.pptik.id',
+      vhost: '/redmine-dev',
+      port: 5672,
+      username: 'redmine-dev',
+      password: 'Er3d|01m!n3'
+    )
+
+    begin
+      connection.start
+      channel = connection.create_channel
+      queue = channel.queue('logs-project', durable: true)
 
       data = {
         userId: userId,
