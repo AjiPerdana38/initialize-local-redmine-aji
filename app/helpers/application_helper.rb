@@ -49,7 +49,7 @@ module ApplicationHelper
   end
 
   # publish into rmq
-  def self.log_login_publish_to_rabbitmq(userId, username, phoneNumber = nil, payload)
+  def self.log_authentication_publish_to_rabbitmq(userId, username, phoneNumber = nil, status, payload)
     connection = Bunny.new(
       host: 'rmq2.pptik.id',
       vhost: '/redmine-dev',
@@ -61,12 +61,13 @@ module ApplicationHelper
     begin
       connection.start
       channel = connection.create_channel
-      queue = channel.queue('logs-login', durable: true)
+      queue = channel.queue('logs-authentication', durable: true)
 
       data = {
         userId: userId,
         username: username,
         phoneNumber: phoneNumber,
+        status: status,
         payload: payload,
         timestamp: Time.now.utc
       }.to_json
