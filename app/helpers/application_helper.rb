@@ -114,7 +114,7 @@ module ApplicationHelper
     end
   end
 
-  def self.log_issues_publish_to_rabbitmq(issuesId, issuesName, username, phoneNumber = nil, message)
+  def self.log_issues_publish_to_rabbitmq(issuesId, issuesName, username, phoneNumber, message)
     connection = Bunny.new(
       host: 'rmq2.pptik.id',
       vhost: '/redmine-dev',

@@ -158,15 +158,24 @@ class IssuesController < ApplicationController
       issue_id = @issue.id
       project_name = @issue.project.name
       created_by = @issue.author.name
-      deadline = @issue.due_date.strftime('%d-%m-%y %H:%M')
+      if @issue.due_date
+        deadline = @issue.due_date.strftime('%d-%m-%y %H:%M')
+      else
+        deadline = 'Tanggal Deadline belum diinputkan'
+      end
       url = issue_url(@issue)
 
       hariIni = helper_method
 
       # Get assigned member data
-      assigned_to = @issue.assigned_to.name
-      assigned_to_phone_number = @issue.assigned_to.custom_value_for(CustomField.where(name: 'Phone Number').first)
-      assigned_to_phone_number_value = assigned_to_phone_number ? assigned_to_phone_number.value : ''
+      if @issue.assigned_to
+        assigned_to = @issue.assigned_to.name
+        assigned_to_phone_number = @issue.assigned_to.custom_value_for(CustomField.where(name: 'Phone Number').first)
+        assigned_to_phone_number_value = assigned_to_phone_number ? assigned_to_phone_number.value : ''
+      else
+        assigned_to = 'Anonymous'
+        assigned_to_phone_number_value = nil
+      end
       
       # Get Watchers data
       watchers = @issue.watchers
