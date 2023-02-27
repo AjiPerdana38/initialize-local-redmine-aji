@@ -144,6 +144,38 @@ module ApplicationHelper
     end
   end
 
+  def self.log_watchers_issues_publish_to_rabbitmq(issuesId, issuesName, watcherName, watcherPhoneNumber = nil, payload)
+    connection = Bunny.new(
+      host: 'rmq2.pptik.id',
+      vhost: '/redmine-dev',
+      port: 5672,
+      username: 'redmine-dev',
+      password: 'Er3d|01m!n3'
+    )
+
+    begin
+      connection.start
+      channel = connection.create_channel
+      queue = channel.queue('logs-issues-watcher', durable: true)
+
+      data = {
+        issuesId: issuesId,
+        issuesName: issuesName,
+        watcherName: watcherName,
+        watcherPhoneNumber: watcherPhoneNumber,
+        payload: payload,
+        timestamp: Time.now.utc
+      }.to_json
+
+      channel.default_exchange.publish(data, routing_key: queue.name)
+      puts "Berhasil Publish ke RabbitMQ"
+    rescue => e
+      puts "Unable to publish data to RabbitMQ. Error message: #{e.message}"
+    ensure
+      connection.close if connection.open?
+    end
+  end
+
   # Return true if user is authorized for controller/action, otherwise false
   def authorize_for(controller, action)
     User.current.allowed_to?({:controller => controller, :action => action}, @project)

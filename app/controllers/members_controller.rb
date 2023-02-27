@@ -75,7 +75,7 @@ class MembersController < ApplicationController
 
       hariIni = helper_method
 
-      ApplicationHelper.log_project_publish_to_rabbitmq(project_id, projectName, member_name, member_phone, { status: 200, message: "#{sender_name} menambahkan #{member_name} ke project #{project_name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
+      ApplicationHelper.log_project_publish_to_rabbitmq(project_id, project_name, member_name, member_phone, { status: 200, message: "#{sender_name} menambahkan #{member_name} ke project #{project_name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
     else
       members.each do |member|
         data = {

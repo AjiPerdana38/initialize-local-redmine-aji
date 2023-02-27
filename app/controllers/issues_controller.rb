@@ -161,14 +161,28 @@ class IssuesController < ApplicationController
       deadline = @issue.due_date.strftime('%d-%m-%y %H:%M')
       url = issue_url(@issue)
 
+      hariIni = helper_method
+
       # Get assigned member data
       assigned_to = @issue.assigned_to.name
       assigned_to_phone_number = @issue.assigned_to.custom_value_for(CustomField.where(name: 'Phone Number').first)
       assigned_to_phone_number_value = assigned_to_phone_number ? assigned_to_phone_number.value : ''
       
-      hariIni = helper_method
+      # Get Watchers data
+      watchers = @issue.watchers
+      if watchers.present?
+        watchers.each do |watcher|
+          watcher_name = watcher.user.name
+          watcher_phone_number = watcher.user.custom_value_for(CustomField.where(name: 'Phone Number').first)
+          watcher_phone_number_value = watcher_phone_number ? watcher_phone_number.value : ''
 
-      ApplicationHelper.log_issues_publish_to_rabbitmq(issue_id, issue_name, assigned_to, assigned_to_phone_number_value, {status: 200, message: "#{assigned_to} mendapatkan issue assignment: #{issue_name} dari #{created_by} pada project #{project_name} pada #{hariIni} dengan deadline issue pada tanggal #{deadline}, Akses detail issue di: #{url}"}.to_json)
+          puts "watchers pada issues #{issue_name} adalah #{watcher_name} dengan nomor telephone #{watcher_phone_number_value}"
+
+          ApplicationHelper.log_watchers_issues_publish_to_rabbitmq(issue_id, issue_name, watcher_name, watcher_phone_number_value, {status: 200, message: "*#{watcher_name}* ditambahkan oleh *#{created_by}* sebagai watcher pada issue #{issue_name} dalam project #{project_name} yang di assignedkan ke *#{assigned_to}* pada hari #{hariIni}"}.to_json)
+        end
+      end
+
+      ApplicationHelper.log_issues_publish_to_rabbitmq(issue_id, issue_name, assigned_to, assigned_to_phone_number_value, {status: 200, message: "*#{assigned_to}* mendapatkan issue assignment: #{issue_name} dari *#{created_by}* pada project #{project_name} pada hari #{hariIni} dengan deadline issue pada tanggal #{deadline}, Akses detail issue di: #{url}"}.to_json)
       
       respond_to do |format|
         format.html do
