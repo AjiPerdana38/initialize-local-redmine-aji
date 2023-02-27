@@ -178,11 +178,11 @@ class IssuesController < ApplicationController
 
           puts "watchers pada issues #{issue_name} adalah #{watcher_name} dengan nomor telephone #{watcher_phone_number_value}"
 
-          ApplicationHelper.log_watchers_issues_publish_to_rabbitmq(issue_id, issue_name, watcher_name, watcher_phone_number_value, "*#{watcher_name}* ditambahkan oleh *#{created_by}* sebagai watcher pada issue #{issue_name} dalam project #{project_name} yang di assignedkan ke *#{assigned_to}* pada hari #{hariIni}")
+          ApplicationHelper.log_watchers_issues_publish_to_rabbitmq(issue_id, issue_name, watcher_name, watcher_phone_number_value, "*#{watcher_name}* ditambahkan oleh *#{created_by}* sebagai watcher pada issue #{issue_name} dalam project #{project_name} yang di assignedkan ke *#{assigned_to}* pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}")
         end
       end
 
-      ApplicationHelper.log_issues_publish_to_rabbitmq(issue_id, issue_name, assigned_to, assigned_to_phone_number_value, "*#{assigned_to}* mendapatkan issue assignment: #{issue_name} dari *#{created_by}* pada project #{project_name} pada hari #{hariIni} dengan deadline issue pada tanggal #{deadline}, Akses detail issue di: #{url}")
+      ApplicationHelper.log_issues_publish_to_rabbitmq(issue_id, issue_name, assigned_to, assigned_to_phone_number_value, "*#{assigned_to}* mendapatkan issue assignment: #{issue_name} dari *#{created_by}* pada project #{project_name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")} dengan deadline issue pada tanggal #{deadline}, Akses detail issue di: #{url}")
       
       respond_to do |format|
         format.html do
