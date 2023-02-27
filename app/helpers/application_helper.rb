@@ -49,7 +49,7 @@ module ApplicationHelper
   end
 
   # publish into rmq
-  def self.log_authentication_publish_to_rabbitmq(userId, username, phoneNumber = nil, status, payload)
+  def self.log_authentication_publish_to_rabbitmq(userId, username, phoneNumber = nil, status, message)
     connection = Bunny.new(
       host: 'rmq2.pptik.id',
       vhost: '/redmine-dev',
@@ -68,7 +68,7 @@ module ApplicationHelper
         username: username,
         phoneNumber: phoneNumber,
         status: status,
-        payload: payload,
+        message: message,
         timestamp: Time.now.utc
       }.to_json
 
@@ -81,7 +81,7 @@ module ApplicationHelper
     end
   end
 
-  def self.log_project_publish_to_rabbitmq(projectId, projectName, username, phoneNumber = nil, payload)
+  def self.log_project_publish_to_rabbitmq(projectId, projectName, username, phoneNumber = nil, status, message)
     connection = Bunny.new(
       host: 'rmq2.pptik.id',
       vhost: '/redmine-dev',
@@ -100,7 +100,8 @@ module ApplicationHelper
         projectName: projectName,
         username: username,
         phoneNumber: phoneNumber,
-        payload: payload,
+        status: status,
+        message: message,
         timestamp: Time.now.utc
       }.to_json
 
@@ -113,7 +114,7 @@ module ApplicationHelper
     end
   end
 
-  def self.log_issues_publish_to_rabbitmq(issuesId, issuesName, username, phoneNumber = nil, payload)
+  def self.log_issues_publish_to_rabbitmq(issuesId, issuesName, username, phoneNumber = nil, message)
     connection = Bunny.new(
       host: 'rmq2.pptik.id',
       vhost: '/redmine-dev',
@@ -132,7 +133,7 @@ module ApplicationHelper
         issuesName: issuesName,
         username: username,
         phoneNumber: phoneNumber,
-        payload: payload,
+        message: message,
         timestamp: Time.now.utc
       }.to_json
 
@@ -145,7 +146,7 @@ module ApplicationHelper
     end
   end
 
-  def self.log_watchers_issues_publish_to_rabbitmq(issuesId, issuesName, watcherName, watcherPhoneNumber = nil, payload)
+  def self.log_watchers_issues_publish_to_rabbitmq(issuesId, issuesName, watcherName, watcherPhoneNumber = nil, message)
     connection = Bunny.new(
       host: 'rmq2.pptik.id',
       vhost: '/redmine-dev',
@@ -164,7 +165,7 @@ module ApplicationHelper
         issuesName: issuesName,
         watcherName: watcherName,
         watcherPhoneNumber: watcherPhoneNumber,
-        payload: payload,
+        message: message,
         timestamp: Time.now.utc
       }.to_json
 

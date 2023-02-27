@@ -75,7 +75,7 @@ class MembersController < ApplicationController
 
       hariIni = helper_method
 
-      ApplicationHelper.log_project_publish_to_rabbitmq(project_id, project_name, member_name, member_phone, { status: 200, message: "#{sender_name} menambahkan #{member_name} ke project #{project_name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
+      ApplicationHelper.log_project_publish_to_rabbitmq(project_id, project_name, member_name, member_phone, 'add member', "#{sender_name} menambahkan #{member_name} ke project #{project_name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}")
     else
       members.each do |member|
         data = {
@@ -94,7 +94,7 @@ class MembersController < ApplicationController
 
         hariIni = helper_method
 
-        ApplicationHelper.log_project_publish_to_rabbitmq(project_id, project_name, member_name, member_phone, { status: 200, message: "#{sender_name} menambahkan #{member_name} ke project #{project_name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
+        ApplicationHelper.log_project_publish_to_rabbitmq(project_id, project_name, member_name, member_phone, 'add member', "#{sender_name} menambahkan #{member_name} ke project #{project_name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}")
       end
     end
   end
@@ -151,7 +151,7 @@ class MembersController < ApplicationController
 
       hariIni = helper_method
 
-      ApplicationHelper.log_project_publish_to_rabbitmq(@project.id, @project.name, member_name, member_phone, { status: 200, message: "#{sender_name} merubah #{member_name} menjadi role #{role_name} di project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
+      ApplicationHelper.log_project_publish_to_rabbitmq(@project.id, @project.name, member_name, member_phone, 'Update member', "#{sender_name} merubah #{member_name} menjadi role #{role_name} di project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}")
     end
     respond_to do |format|
       format.html {redirect_to_settings_in_projects}
@@ -173,7 +173,7 @@ class MembersController < ApplicationController
     sender_name = User.current.name
     hariIni = helper_method
 
-    ApplicationHelper.log_project_publish_to_rabbitmq(@project.id, @project.name, member_name, member_phone, { status: 200, message: "#{sender_name} telah menghapus #{member_name} dari project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}" })
+    ApplicationHelper.log_project_publish_to_rabbitmq(@project.id, @project.name, member_name, member_phone, 'delete member', "#{sender_name} telah menghapus #{member_name} dari project #{@project.name} pada hari #{hariIni}, tanggal #{Date.today.strftime("%d %B %Y")}, Jam #{Time.now.strftime("%H:%M")}")
 
     if @member.deletable?
       @member.destroy
